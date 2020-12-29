@@ -14,7 +14,7 @@ public class GameDataAccessService {
     private final List<Game> games;
     private final List<Integer> gameId;
     private final List<Integer> playerId;
-    private Game curGame;
+    private Game curGame = null;
 
     @Autowired
     public GameDataAccessService() {
@@ -41,20 +41,21 @@ public class GameDataAccessService {
         return "gameid" + curId;
     }
 
-    public Game getStateById(String gameId) throws Exception {
+    public Game getStateById(String gameId) {
         //get current game
-        Optional<Game> catchCurGame = games.stream()
-                .filter(game -> game.getId().equals(gameId))
-                .findFirst();
-        catchCurGame.ifPresent(game -> curGame = game);
-        if (curGame == null) {
-            throw new ApiException.GameNotFoundException("Game/moves not found");
-        }
-
+        checkCurGame(gameId);
         return curGame;
     }
 
     public Map<Integer, Move> getListOfMove(String gameId) {
+        checkCurGame(gameId);
+        return curGame.getListOfMove();
+    }
+
+    private void checkCurGame(String gameId) {
+        if (curGame != null) {
+            curGame = null;
+        }
         Optional<Game> catchCurGame = games.stream()
                 .filter(game -> game.getId().equals(gameId))
                 .findFirst();
@@ -62,10 +63,12 @@ public class GameDataAccessService {
         if (curGame == null) {
             throw new ApiException.GameNotFoundException("Game/moves not found");
         }
-        return curGame.getListOfMove();
     }
 
     public int postMove(String gameId, String playerId, int column) throws Exception {
+        if (curGame != null) {
+            curGame = null;
+        }
         Optional<Game> catchCurGame = games.stream()
                 .filter(game -> game.getId().equals(gameId))
                 .findFirst();
@@ -80,6 +83,9 @@ public class GameDataAccessService {
     }
 
     public void playerQuit(String gameId, String playerId) throws Exception {
+        if (curGame != null) {
+            curGame = null;
+        }
         Optional<Game> catchCurGame = games.stream()
                 .filter(game -> game.getId().equals(gameId))
                 .findFirst();
