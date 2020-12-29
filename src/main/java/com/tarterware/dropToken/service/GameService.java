@@ -1,6 +1,7 @@
 package com.tarterware.dropToken.service;
 
 import com.tarterware.dropToken.entities.Game;
+import com.tarterware.dropToken.exceptions.ApiException;
 import com.tarterware.dropToken.repository.GameDataAccessService;
 import com.tarterware.dropToken.entities.Move;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,20 +36,24 @@ public class GameService {
 		return gameDataAccessService.createGame(players);
 	}
 
-//	public String createNewGames(Game game) {
-//		int curId;
-//		List<Integer> gameIdList = GameDataAccessService.getAllGameIds();
-//		List<Game> gameList = GameDataAccessService.getAllGame();
-//		if (gameIdList.size() == 0) {
-//			curId = 1;
-//		} else {
-//			curId = gameIdList.get(gameIdList.size() - 1) + 1;
-//		}
-//		gameIdList.add(curId);
-//		gameDataAccessService.setAllGameIds(gameIdList);
+//	public String createNewGames(GameInput game) {
+//		int curId = 111;
+////		List<Integer> gameIdList = GameDataAccessService.getAllGameIds();
+////		List<Game> gameList = GameDataAccessService.getAllGame();
+//
+////		if (gameIdList.size() == 0) {
+////			curId = 1;
+////		} else {
+////			curId = gameIdList.get(gameIdList.size() - 1) + 1;
+////		}
+////		gameIdList.add(curId);
+////		gameDataAccessService.setAllGameIds(gameIdList);
+////
+////		gameDataAccessService.createNewGame(Game game);
+//		return String.valueOf(curId);
 //	}
 
-	public Game getStateOfGameById(String gameId) {
+	public Game getStateOfGameById(String gameId) throws Exception {
 		return gameDataAccessService.getStateById(gameId);
 	}
 
@@ -64,10 +69,13 @@ public class GameService {
 
 	public Move getMove(String gameId, int moveNum) {
 		Map<Integer, Move> moves = gameDataAccessService.getListOfMove(gameId);
+		if (!moves.containsKey(moveNum)) {
+			throw new ApiException.GameNotFoundException("Game/moves not found");
+		}
 		return moves.get(moveNum);
 	}
 
-	public void playerQuit(String gameId, String playerId) {
+	public void playerQuit(String gameId, String playerId) throws Exception {
 		gameDataAccessService.playerQuit(gameId, playerId);
 	}
 }

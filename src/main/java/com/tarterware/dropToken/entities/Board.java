@@ -1,5 +1,7 @@
 package com.tarterware.dropToken.entities;
 
+import com.tarterware.dropToken.exceptions.ApiException;
+
 public class Board {
 
 
@@ -96,7 +98,10 @@ public class Board {
 		return round == 16 && !checkWin();
 	}
 
-	public void setCurPlayer(Player curPlayer) {
+	public void setCurPlayer(Player curPlayer) throws Exception {
+		if (this.curPlayer == curPlayer) {
+			throw new ApiException.WrongTurnException("Player tried to post when it's not their turn");
+		}
 		this.curPlayer = curPlayer;
 	}
 }

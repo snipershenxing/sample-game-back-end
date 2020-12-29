@@ -2,6 +2,7 @@ package com.tarterware.dropToken.repository;
 
 import com.tarterware.dropToken.entities.Game;
 import com.tarterware.dropToken.entities.Move;
+import com.tarterware.dropToken.exceptions.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -40,12 +41,16 @@ public class GameDataAccessService {
         return "gameid" + curId;
     }
 
-    public Game getStateById(String gameId) {
+    public Game getStateById(String gameId) throws Exception {
         //get current game
         Optional<Game> catchCurGame = games.stream()
                 .filter(game -> game.getId().equals(gameId))
                 .findFirst();
         catchCurGame.ifPresent(game -> curGame = game);
+        if (curGame == null) {
+            throw new ApiException.GameNotFoundException("Game/moves not found");
+        }
+        System.out.println(curGame.getId());
         //set game state
         String winnerChecking = curGame.checkWinner();
         if (curGame.getGameState().equals(Game.GameState.DONE)) {
@@ -74,6 +79,9 @@ public class GameDataAccessService {
                 .filter(game -> game.getId().equals(gameId))
                 .findFirst();
         catchCurGame.ifPresent(game -> curGame = game);
+        if (curGame == null) {
+            throw new ApiException.GameNotFoundException("Game/moves not found");
+        }
         return curGame.getListOfMove();
     }
 
@@ -82,15 +90,24 @@ public class GameDataAccessService {
                 .filter(game -> game.getId().equals(gameId))
                 .findFirst();
         catchCurGame.ifPresent(game -> curGame = game);
+        if (curGame == null) {
+            throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
+        }
         //make move, set player, mark on board
         return curGame.postMove(playerId, column);
     }
 
-    public void playerQuit(String gameId, String playerId) {
+    public void playerQuit(String gameId, String playerId) throws Exception {
         Optional<Game> catchCurGame = games.stream()
                 .filter(game -> game.getId().equals(gameId))
                 .findFirst();
         catchCurGame.ifPresent(game -> curGame = game);
+        if (curGame == null) {
+            throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
+        }
+        if (curGame.getGameState().equals(Game.GameState.DONE)) {
+            throw new ApiException.DoneStateException("Game is already in DONE state");
+        }
         curGame.playerQuit(playerId);
     }
 }

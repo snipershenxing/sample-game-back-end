@@ -1,6 +1,7 @@
 package com.tarterware.dropToken.entities;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.tarterware.dropToken.exceptions.ApiException;
 
 import java.util.*;
 
@@ -109,6 +110,9 @@ public class Game {
                 .filter(player -> player.getPlayerId().equals(playerId))
                 .findFirst();
         catchCurPlayer.ifPresent(player -> curPlayer = player);
+        if (curPlayer == null || !playersId.contains(curPlayer.getPlayerId())) {
+            throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
+        }
         //set current player & mark on the board
         board.setCurPlayer(curPlayer);
         board.markAt(column);
@@ -120,7 +124,10 @@ public class Game {
         return this.numOfMove;
     }
 
-    public void playerQuit(String playerId) {
+    public void playerQuit(String playerId) throws Exception {
+        if (!playersId.contains(playerId)) {
+            throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
+        }
         numOfMove += 1;
         Move curMove = new Move(playerId);
         moveRecord.put(numOfMove, curMove);
