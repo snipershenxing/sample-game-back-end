@@ -40,7 +40,7 @@ public class ApiException {
         }
     }
 
-    @ResponseStatus(code = HttpStatus.NO_CONTENT, reason = "Game is already in DONE state")
+    @ResponseStatus(code = HttpStatus.GONE, reason = "Game is already in DONE state")
     public static class DoneStateException extends RuntimeException{
         public DoneStateException(String message) {
             super(message);

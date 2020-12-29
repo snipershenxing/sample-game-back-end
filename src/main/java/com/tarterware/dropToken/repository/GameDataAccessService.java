@@ -50,26 +50,6 @@ public class GameDataAccessService {
         if (curGame == null) {
             throw new ApiException.GameNotFoundException("Game/moves not found");
         }
-        System.out.println(curGame.getId());
-        //set game state
-        String winnerChecking = curGame.checkWinner();
-        if (curGame.getGameState().equals(Game.GameState.DONE)) {
-            curGame.setGameState("Done");
-        } else {
-            if (!winnerChecking.equalsIgnoreCase("inprogress")) {
-                curGame.setGameState("Done");
-            } else {
-                curGame.setGameState("inProgress");
-            }
-        }
-
-        //set Winner
-//        if (winnerChecking.equals("inProgress") || winnerChecking.equals("draw")) {
-//            //do nothing
-//        } else {
-//            curGame.setWinner(winnerChecking);
-//        }
-        curGame.setWinner(winnerChecking);
 
         return curGame;
     }
@@ -90,11 +70,13 @@ public class GameDataAccessService {
                 .filter(game -> game.getId().equals(gameId))
                 .findFirst();
         catchCurGame.ifPresent(game -> curGame = game);
-        if (curGame == null) {
+        if (curGame == null || curGame.getGameState().equals(Game.GameState.DONE)) {
             throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
         }
         //make move, set player, mark on board
-        return curGame.postMove(playerId, column);
+        int moveNum = curGame.postMove(playerId, column);
+        curGame.updateStatus();
+        return moveNum;
     }
 
     public void playerQuit(String gameId, String playerId) throws Exception {
@@ -106,6 +88,7 @@ public class GameDataAccessService {
             throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
         }
         if (curGame.getGameState().equals(Game.GameState.DONE)) {
+            System.out.println("work");
             throw new ApiException.DoneStateException("Game is already in DONE state");
         }
         curGame.playerQuit(playerId);

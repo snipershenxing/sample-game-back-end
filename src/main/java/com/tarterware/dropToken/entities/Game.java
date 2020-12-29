@@ -58,14 +58,6 @@ public class Game {
         return this.gameId;
     }
 
-    public void setGameState(String state) {
-        if (!state.equalsIgnoreCase("inProgress")) {
-            this.gameState = GameState.DONE;
-        } else {
-            this.gameState = GameState.IN_PROGRESS;
-        }
-    }
-
     public GameState getGameState() {
         return this.gameState;
     }
@@ -74,27 +66,20 @@ public class Game {
         return this.playersId;
     }
 
-    public void setWinner(String winner) {
-        this.winner = winner;
-    }
-
     public String getWinner() {
         return this.winner;
     }
 
-    public String checkWinner() {
-//        boolean isWin = board.checkWin();
-        boolean isWin = false;
-        String winner;
-        if (isWin) {
-            winner = board.getWinner();
-            return winner;
+    public void updateStatus() {
+        if (board.checkWin()) {
+            this.gameState = GameState.DONE;
+            this.winner = board.getWinner();
         } else {
-            boolean isDraw = board.isDraw();
-            if (isDraw) {
-                return "draw";
+            if (board.isDraw()) {
+                this.gameState = GameState.DONE;
+                this.winner = null;
             } else {
-                return "inProgress";
+                this.gameState = GameState.IN_PROGRESS;
             }
         }
     }
@@ -113,10 +98,10 @@ public class Game {
         if (curPlayer == null || !playersId.contains(curPlayer.getPlayerId())) {
             throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
         }
+
         //set current player & mark on the board
         board.setCurPlayer(curPlayer);
         board.markAt(column);
-        //check if there is a winner
 
         //set current move
         Move curMove = new Move(playerId, column);
@@ -135,8 +120,9 @@ public class Game {
                 .filter(player -> player.getPlayerId().equals(playerId))
                 .findFirst();
         catchCurPlayer.ifPresent(player -> curPlayer = player);
+        players.remove(curPlayer);
         playersId.remove(playerId);
         this.gameState = GameState.DONE;
-        this.winner = playerId.equalsIgnoreCase(player1.getPlayerId()) ? player2.getPlayerId() : player1.getPlayerId();
+        winner = winner == null ? null : winner;
     }
 }

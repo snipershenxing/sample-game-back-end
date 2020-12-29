@@ -65,7 +65,10 @@ public class GameController {
 		JSONObject result = new JSONObject();
 		result.put("players", curGame.getPlayersId());
 		result.put("state", curGame.getGameState());
-		result.put("winner", curGame.getWinner());
+		if (curGame.getGameState() != Game.GameState.IN_PROGRESS) {
+			result.put("winner", curGame.getWinner());
+		}
+
 		return result.toJSONString();
 	}
 

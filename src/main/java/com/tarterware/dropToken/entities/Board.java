@@ -28,14 +28,13 @@ public class Board {
 	}
 
 	//set move into column
-	public void markAt(int col) throws Exception
-	{
+	public void markAt(int col) throws Exception {
 		col -= 1;
 		if (board[0][col] != Marker.BLANK) {
-			throw new Exception("Cannot be put here");
+			throw new ApiException.IllegalMoveException("Malformed input. Illegal move");
 		} else {
 			for (int i = 3; i >= 0; i--) {
-				if (board[i][col] != Marker.BLANK) {
+				if (board[i][col] == Marker.BLANK) {
 					if (curPlayer == player1) {
 						board[i][col] = Marker.RED;
 					} else {
@@ -54,13 +53,17 @@ public class Board {
 		//x, y
 		for (int i = 0; i < 4; i++) {
 			flag = board[i][i];
+			if (flag == Marker.BLANK) {
+				continue;
+			}
 			boolean xFull = true;
 			boolean yFull = true;
 			//x dir
 			for (int j = 0; j < 4; j++) {
-				if (board[i][j] != flag) {
+				if (board[i][j] != flag || board[i][j] == Marker.BLANK) {
 					xFull = false;
-				} else if (board[j][i] != flag) {
+				}
+				if (board[j][i] != flag || board[j][i] == Marker.BLANK) {
 					yFull = false;
 				}
 			}
@@ -72,20 +75,30 @@ public class Board {
 		boolean diagonal1 = true;
 		boolean diagonal2 = true;
 		flag = board[0][0];
-		for (int i = 3; i >= 0; i--) {
-			if (board[i][i] != flag) {
-				diagonal1 = false;
-				break;
+		if (board[0][0] == Marker.BLANK) {
+			diagonal1 = false;
+		} else {
+			for (int i = 3; i >= 0; i--) {
+				if (board[i][i] != flag) {
+					diagonal1 = false;
+					break;
+				}
 			}
 		}
+
 		//diagnol 2
 		flag = board[3][0];
-		for (int i = 3; i >= 0; i--) {
-			if (board[i][3 - i] != flag) {
-				diagonal2 = false;
-				break;
+		if (board[3][0] == Marker.BLANK) {
+			diagonal2 = false;
+		} else {
+			for (int i = 3; i >= 0; i--) {
+				if (board[i][3 - i] != flag) {
+					diagonal2 = false;
+					break;
+				}
 			}
 		}
+
 		return diagonal1 || diagonal2;
 	}
 
