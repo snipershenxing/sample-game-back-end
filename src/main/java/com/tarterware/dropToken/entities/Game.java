@@ -30,9 +30,7 @@ public class Game {
 
     private int numOfMove;
 
-    private Player curPlayer;
-    private final Player player1;
-    private final Player player2;
+    private Player curPlayer = null;
 
     private final List<Player> players;
 
@@ -40,18 +38,24 @@ public class Game {
     public Game(String player1, String player2, int curId) {
         super();
         this.gameId = "gameid" + curId;
-        this.player1 = new Player(player1);
-        this.player2 = new Player(player2);
+
+        Player player11 = new Player(player1);
+        Player player21 = new Player(player2);
+
         this.playersId = new ArrayList<>();
-        playersId.add(this.player1.getPlayerId());
-        playersId.add(this.player2.getPlayerId());
+        playersId.add(player11.getPlayerId());
+        playersId.add(player21.getPlayerId());
+
+        this.players = new ArrayList<>();
+        players.add(player11);
+        players.add(player21);
+
         this.gameState = GameState.IN_PROGRESS;
-        this.board = new Board(this.player1, this.player2);
+
+        this.board = new Board(player11, player21);
+
         this.moveRecord = new HashMap<>();
         this.numOfMove = 0;
-        this.players = new ArrayList<>();
-        players.add(this.player1);
-        players.add(this.player2);
     }
 
     public String getId() {
@@ -60,6 +64,10 @@ public class Game {
 
     public GameState getGameState() {
         return this.gameState;
+    }
+
+    public void setGameState(GameState state) {
+        this.gameState = state;
     }
 
     public List<String> getPlayersId() {
@@ -88,9 +96,26 @@ public class Game {
         return this.moveRecord;
     }
 
-    public int postMove(String playerId, int column) throws Exception {
-        this.numOfMove += 1;
-        //throw exception if player not in here
+    public void recordMove(int curGameNumOfMove, Move curMove) {
+        this.moveRecord.put(curGameNumOfMove, curMove);
+    }
+
+    public int getNumOfMove() {
+        return this.numOfMove;
+    }
+
+    public void setNumOfMove(int curGameNumOfMove) {
+        this.numOfMove = curGameNumOfMove;
+    }
+
+    public void setMove(int column) throws Exception {
+        board.markAt(column);
+    }
+
+    public Player getPlayerById(String playerId) {
+        if (curPlayer != null) {
+            curPlayer = null;
+        }
         Optional<Player> catchCurPlayer = players.stream()
                 .filter(player -> player.getPlayerId().equals(playerId))
                 .findFirst();
@@ -98,31 +123,14 @@ public class Game {
         if (curPlayer == null || !playersId.contains(curPlayer.getPlayerId())) {
             throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
         }
-
-        //set current player & mark on the board
-        board.setCurPlayer(curPlayer);
-        board.markAt(column);
-
-        //set current move
-        Move curMove = new Move(playerId, column);
-        moveRecord.put(numOfMove, curMove);
-        return this.numOfMove;
+        return curPlayer;
     }
 
-    public void playerQuit(String playerId) throws Exception {
-        if (!playersId.contains(playerId)) {
-            throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
-        }
-        numOfMove += 1;
-        Move curMove = new Move(playerId);
-        moveRecord.put(numOfMove, curMove);
-        Optional<Player> catchCurPlayer = players.stream()
-                .filter(player -> player.getPlayerId().equals(playerId))
-                .findFirst();
-        catchCurPlayer.ifPresent(player -> curPlayer = player);
-        players.remove(curPlayer);
-        playersId.remove(playerId);
-        this.gameState = GameState.DONE;
-        winner = winner == null ? null : winner;
+    public void setCurGamePlayer(Player curGamePlayer) throws Exception {
+        board.setCurPlayer(curGamePlayer);
+    }
+
+    public List<Player> getPlayers() {
+        return this.players;
     }
 }

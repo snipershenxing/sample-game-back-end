@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RequestMapping("drop_token/")
 @RestController
@@ -30,9 +28,9 @@ public class GameController {
 	@GetMapping
 	public String getAllGames() {
 		List<String> allGames = gameService.getAllGame();
-		Map<String, Object> map = new HashMap<>();
-		map.put("games", allGames);
-		return JSON.toJSONString(map, true);
+		JSONObject result = new JSONObject();
+		result.put("games", allGames);
+		return result.toJSONString();
 	}
 
 	/* create new game
@@ -61,14 +59,7 @@ public class GameController {
 		if (gameId == null) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
-		Game curGame = gameService.getStateOfGameById(gameId);
-		JSONObject result = new JSONObject();
-		result.put("players", curGame.getPlayersId());
-		result.put("state", curGame.getGameState());
-		if (curGame.getGameState() != Game.GameState.IN_PROGRESS) {
-			result.put("winner", curGame.getWinner());
-		}
-
+		JSONObject result = gameService.getStateOfGameById(gameId);
 		return result.toJSONString();
 	}
 
@@ -91,14 +82,14 @@ public class GameController {
 			throws Exception {
 		int column = (int) input.get("column");
 
-		if (input == null || column < 1 || column > 4) {
+		if (column < 1 || column > 4) {
 			throw new ApiException.IllegalMoveException("Malformed input. Illegal move");
 		}
 
 		String curMove = gameService.postMove(gameId, playerId, column);
-		Map<String, Object> map = new HashMap<>();
-		map.put("move", curMove);
-		return JSON.toJSONString(map, true);
+		JSONObject result = new JSONObject();
+		result.put("move", curMove);
+		return result.toJSONString();
 	}
 
 	@GetMapping(path = "{gameId}/moves/{move_number}")
