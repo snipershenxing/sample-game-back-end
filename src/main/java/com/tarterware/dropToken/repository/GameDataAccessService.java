@@ -11,8 +11,6 @@ import java.util.*;
 public class GameDataAccessService {
 
     private final static List<Game> games = new ArrayList<>();
-
-
     private Game curGame = null;
 
     @Autowired
@@ -33,7 +31,7 @@ public class GameDataAccessService {
             curGame = null;
         }
         Optional<Game> catchCurGame = games.stream()
-                .filter(game -> game.getId().equals(gameId))
+                .filter(game -> game.getGameId().equals(gameId))
                 .findFirst();
         catchCurGame.ifPresent(game -> curGame = game);
         if (curGame == null) {

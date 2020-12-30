@@ -2,10 +2,9 @@ package com.tarterware.dropToken.control;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.tarterware.dropToken.entities.Game;
+import com.tarterware.dropToken.entities.Move;
 import com.tarterware.dropToken.exceptions.ApiException;
 import com.tarterware.dropToken.service.GameService;
-import com.tarterware.dropToken.entities.Move;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +12,8 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
-@RequestMapping("drop_token/")
 @RestController
+@RequestMapping("drop_token/")
 public class GameController {
 
 	private final GameService gameService;
@@ -24,7 +23,9 @@ public class GameController {
 		this.gameService = gameService1;
 	}
 
-	/* get all games' id */
+	/* Request all games' id
+	* return list of game id
+	*/
 	@GetMapping
 	public String getAllGames() {
 		List<String> allGames = gameService.getAllGame();
@@ -34,7 +35,8 @@ public class GameController {
 	}
 
 	/* create new game
-	* pass list of players as parameters
+	* get list of players' name from request body
+	* validate the inputs
 	*/
 	@PostMapping
 	public String createNewGame(@RequestBody @Valid JSONObject game) throws ApiException.MalformedException {
@@ -55,7 +57,7 @@ public class GameController {
 	need to check if gameId exist in the game list
 	 */
 	@GetMapping(path = "{gameId}")
-	public String getStateOfGameById(@PathVariable("gameId") String gameId) throws Exception {
+	public String getStateOfGameById(@PathVariable("gameId") String gameId) {
 		if (gameId == null) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
@@ -63,8 +65,11 @@ public class GameController {
 		return result.toJSONString();
 	}
 
+	/*
+	get all moves made in game
+	 */
 	@GetMapping(path = "{gameId}/moves")
-	public String getListOfMove (@PathVariable("gameId") String gameId) throws Exception  {
+	public String getListOfMove (@PathVariable("gameId") String gameId) {
 		if (gameId == null) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
@@ -75,6 +80,9 @@ public class GameController {
 		return JSON.toJSONString(moves, true);
 	}
 
+	/*
+	post a move by player in game
+	 */
 	@PostMapping(path = "{gameId}/{playerId}")
 	public String postMove(@RequestBody JSONObject input,
 						   @PathVariable("playerId") String playerId,
@@ -92,9 +100,12 @@ public class GameController {
 		return result.toJSONString();
 	}
 
+	/*
+	get the specific move in a game
+	 */
 	@GetMapping(path = "{gameId}/moves/{move_number}")
 	public String getMove(@PathVariable("gameId") String gameId,
-						  @PathVariable("move_number") String moveNum) throws Exception {
+						  @PathVariable("move_number") String moveNum) {
 		if (gameId == null || moveNum == null) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
@@ -106,9 +117,12 @@ public class GameController {
 		return JSON.toJSONString(targetMove);
 	}
 
+	/*
+	player quit from a game
+	 */
 	@DeleteMapping(path = "{gameId}/{playerId}")
 	public void playerQuit(@PathVariable("gameId") String gameId,
-						   @PathVariable("playerId") String playerId) throws Exception {
+						   @PathVariable("playerId") String playerId) {
 		if (gameId == null || playerId == null) {
 			throw new ApiException.MalformedException("Malformed request");
 		}

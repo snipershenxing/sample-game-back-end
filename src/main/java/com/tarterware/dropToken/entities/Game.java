@@ -37,7 +37,7 @@ public class Game {
     //initial a game
     public Game(String player1, String player2, int curId) {
         super();
-        this.gameId = "gameid" + curId;
+        this.gameId = "gameId" + curId;
 
         Player player11 = new Player(player1);
         Player player21 = new Player(player2);
@@ -52,14 +52,22 @@ public class Game {
 
         this.gameState = GameState.IN_PROGRESS;
 
-        this.board = new Board(player11, player21);
+        this.board = new Board(player11);
 
         this.moveRecord = new HashMap<>();
         this.numOfMove = 0;
     }
 
-    public String getId() {
+    public String getGameId() {
         return this.gameId;
+    }
+
+    public List<String> getPlayersId() {
+        return this.playersId;
+    }
+
+    public List<Player> getPlayers() {
+        return this.players;
     }
 
     public GameState getGameState() {
@@ -68,10 +76,6 @@ public class Game {
 
     public void setGameState(GameState state) {
         this.gameState = state;
-    }
-
-    public List<String> getPlayersId() {
-        return this.playersId;
     }
 
     public String getWinner() {
@@ -108,7 +112,7 @@ public class Game {
         this.numOfMove = curGameNumOfMove;
     }
 
-    public void setMove(int column) throws Exception {
+    public void postMove(int column) {
         board.markAt(column);
     }
 
@@ -126,11 +130,7 @@ public class Game {
         return curPlayer;
     }
 
-    public void setCurGamePlayer(Player curGamePlayer) throws Exception {
+    public void setCurPlayer(Player curGamePlayer) {
         board.setCurPlayer(curGamePlayer);
-    }
-
-    public List<Player> getPlayers() {
-        return this.players;
     }
 }

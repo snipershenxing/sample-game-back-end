@@ -10,15 +10,13 @@ public class Board {
 	public Marker[][] board;
 
 	private final Player player1;
-	private final Player player2;
 	private Player curPlayer;
 	private int round;
 
 	//initialize game board
-	public Board(Player player1, Player player2) {
+	public Board(Player player1) {
 		this.board = new Marker[4][4];
 		this.player1 = player1;
-		this.player2 = player2;
 		this.round = 1;
 		for(int r = 0;  r < 4;  ++r ) {
 			for(int c = 0;  c < 4;  ++c) {
@@ -28,7 +26,7 @@ public class Board {
 	}
 
 	//set move into column
-	public void markAt(int col) throws Exception {
+	public void markAt(int col) {
 		col -= 1;
 		if (board[0][col] != Marker.BLANK) {
 			throw new ApiException.IllegalMoveException("Malformed input. Illegal move");
@@ -111,7 +109,7 @@ public class Board {
 		return round == 16 && !checkWin();
 	}
 
-	public void setCurPlayer(Player curPlayer) throws Exception {
+	public void setCurPlayer(Player curPlayer) {
 		if (this.curPlayer == curPlayer) {
 			throw new ApiException.WrongTurnException("Player tried to post when it's not their turn");
 		}

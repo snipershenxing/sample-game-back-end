@@ -9,10 +9,7 @@ import com.tarterware.dropToken.entities.Move;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class GameService {
@@ -28,15 +25,18 @@ public class GameService {
 	}
 
 	public List<String> getAllGame() {
+		//get all games from repository
 		List<Game> gs = gameDataAccessService.getAllGames();
+		//get all game id from the games and put into a list
 		List<String> games = new ArrayList<>();
 		for (Game g : gs) {
-			games.add(g.getId());
+			games.add(g.getGameId());
 		}
 		return games;
 	}
 
 	public String createNewGame(List<String> players) {
+		//generate game id cumulatively
 		int curId;
 		if (gameId.size() == 0) {
 			curId = 1;
@@ -45,6 +45,7 @@ public class GameService {
 			curId = gameId.get(size - 1) + 1;
 		}
 		gameId.add(curId);
+		//create a new game
 		Game curGame = new Game(players.get(0), players.get(1), curId);
 		GameDataAccessService.createGame(curGame);
 		return "gameId" + curId;
@@ -52,7 +53,7 @@ public class GameService {
 
 	public JSONObject getStateOfGameById(String gameId) {
 		Game curGame = gameDataAccessService.getGameById(gameId);
-		JSONObject result = new JSONObject();
+		JSONObject result = new JSONObject(new LinkedHashMap<>());
 		result.put("players", curGame.getPlayersId());
 		result.put("state", curGame.getGameState());
 		if (curGame.getGameState() != Game.GameState.IN_PROGRESS) {
@@ -67,19 +68,25 @@ public class GameService {
 		return moves.values();
 	}
 
-	public String postMove(String gameId, String playerId, int column) throws Exception {
+	public String postMove(String gameId, String playerId, int column) {
+		//get game by gameId from repository
 		Game curGame = gameDataAccessService.getGameById(gameId);
+		//check game status
 		if (curGame.getGameState().equals(Game.GameState.DONE)) {
 			throw new ApiException.DoneStateException("Game is already in DONE state");
 		} else {
+			//find player in this game and set the current player
 			Player curGamePlayer = curGame.getPlayerById(playerId);
-			curGame.setCurGamePlayer(curGamePlayer);
-			curGame.setMove(column);
+			curGame.setCurPlayer(curGamePlayer);
+			//post move in the game
+			curGame.postMove(column);
+			//create new move class
 			Move curMove = new Move(playerId, column);
 			int curGameNumOfMove = curGame.getNumOfMove();
 			curGameNumOfMove += 1;
 			curGame.recordMove(curGameNumOfMove, curMove);
 			curGame.setNumOfMove(curGameNumOfMove);
+			//after posting move, check if there's any winner
 			curGame.updateStatus();
 			return gameId + "/moves/" + "moveNum: " + curGameNumOfMove;
 		}
@@ -103,17 +110,20 @@ public class GameService {
 			System.out.println("work");
 			throw new ApiException.DoneStateException("Game is already in DONE state");
 		}
+		List<Player> curGamePlayers = curGame.getPlayers();
 		List<String> curGamePlayersId = curGame.getPlayersId();
 		if (!curGamePlayersId.contains(playerId)) {
 			throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
 		}
+		//record this move in the game
 		curGame.setNumOfMove(curGame.getNumOfMove() + 1);
 		Move curMove = new Move(playerId);
 		curGame.recordMove(curGame.getNumOfMove(), curMove);
+		//delete the player from the game
 		Player curGamePlayer = curGame.getPlayerById(playerId);
 		curGamePlayersId.remove(playerId);
-		List<Player> curGamePlayers = curGame.getPlayers();
 		curGamePlayers.remove(curGamePlayer);
+		//set game state
 		curGame.setGameState(Game.GameState.DONE);
 	}
 }
