@@ -23,8 +23,9 @@ public class GameController {
 		this.gameService = gameService1;
 	}
 
-	/* Request all games' id
-	* return list of game id
+	/*
+	Request all games' id
+	return list of game id
 	*/
 	@GetMapping
 	public String getAllGames() {
@@ -34,19 +35,14 @@ public class GameController {
 		return result.toJSONString();
 	}
 
-	/* create new game
-	* get list of players' name from request body
-	* validate the inputs
+	/*
+	create new game
+	get list of players' name from request body
+	validate the inputs
 	*/
 	@PostMapping
 	public String createNewGame(@RequestBody @Valid JSONObject game) throws ApiException.MalformedException {
-		List<String> players = (List<String>) game.get("players");
-
-		if (players.size() < 2 || game.get("columns") == null || game.get("rows") == null) {
-			throw new ApiException.MalformedException("Malformed request");
-		}
-
-		String success = gameService.createNewGame(players);
+		String success = gameService.createNewGame(game);
 		JSONObject result = new JSONObject();
 		result.put("gameId", success);
 		return result.toJSONString();
@@ -58,7 +54,7 @@ public class GameController {
 	 */
 	@GetMapping(path = "{gameId}")
 	public String getStateOfGameById(@PathVariable("gameId") String gameId) {
-		if (gameId == null) {
+		if (gameId == null || !gameId.contains("gameId")) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
 		JSONObject result = gameService.getStateOfGameById(gameId);
@@ -70,7 +66,7 @@ public class GameController {
 	 */
 	@GetMapping(path = "{gameId}/moves")
 	public String getListOfMove (@PathVariable("gameId") String gameId) {
-		if (gameId == null) {
+		if (gameId == null || !gameId.contains("gameId")) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
 		Collection<Move> moves = gameService.getListOfMove(gameId);
@@ -86,11 +82,13 @@ public class GameController {
 	@PostMapping(path = "{gameId}/{playerId}")
 	public String postMove(@RequestBody JSONObject input,
 						   @PathVariable("playerId") String playerId,
-						   @PathVariable("gameId") String gameId)
-			throws Exception {
-		int column = (int) input.get("column");
+						   @PathVariable("gameId") String gameId) {
+		if (!input.containsKey("column")) {
+			throw new ApiException.IllegalMoveException("Malformed input. Illegal move");
+		}
+		int column = input.getInteger("column");
 
-		if (column < 1 || column > 4) {
+		if (column < 1 || column > 4 || !gameId.contains("gameId") || playerId.equals("")) {
 			throw new ApiException.IllegalMoveException("Malformed input. Illegal move");
 		}
 
@@ -106,7 +104,7 @@ public class GameController {
 	@GetMapping(path = "{gameId}/moves/{move_number}")
 	public String getMove(@PathVariable("gameId") String gameId,
 						  @PathVariable("move_number") String moveNum) {
-		if (gameId == null || moveNum == null) {
+		if (gameId == null || moveNum == null || !gameId.contains("gameId") || Integer.parseInt(moveNum) < 1) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
 		int targetMoveNum = Integer.parseInt(moveNum);
@@ -123,7 +121,7 @@ public class GameController {
 	@DeleteMapping(path = "{gameId}/{playerId}")
 	public void playerQuit(@PathVariable("gameId") String gameId,
 						   @PathVariable("playerId") String playerId) {
-		if (gameId == null || playerId == null) {
+		if (gameId == null || playerId == null || !gameId.contains("gameId") || playerId.equals("")) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
 		gameService.playerQuit(gameId, playerId);

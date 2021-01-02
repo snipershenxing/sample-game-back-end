@@ -1,5 +1,6 @@
 package com.tarterware.dropToken.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tarterware.dropToken.entities.Game;
 import com.tarterware.dropToken.entities.Player;
@@ -35,7 +36,25 @@ public class GameService {
 		return games;
 	}
 
-	public String createNewGame(List<String> players) {
+	public String createNewGame(JSONObject game) {
+		//get players' name
+		if (!game.containsKey("players") || !game.containsKey("columns") || !game.containsKey("rows")) {
+			throw new ApiException.MalformedException("Malformed request");
+		}
+
+		JSONArray players = game.getJSONArray("players");
+
+		if (players == null || players.size() != 2 || game.get("columns") == null || game.get("rows") == null) {
+			throw new ApiException.MalformedException("Malformed request");
+		}
+
+		String p1 = players.getString(0);
+		String p2 = players.getString(1);
+
+		if (p1.equals("") || p2.equals("")) {
+			throw new ApiException.MalformedException("Malformed request");
+		}
+
 		//generate game id cumulatively
 		int curId;
 		if (gameId.size() == 0) {
@@ -45,8 +64,9 @@ public class GameService {
 			curId = gameId.get(size - 1) + 1;
 		}
 		gameId.add(curId);
+
 		//create a new game
-		Game curGame = new Game(players.get(0), players.get(1), curId);
+		Game curGame = new Game(p1, p2, curId);
 		GameDataAccessService.createGame(curGame);
 		return "gameId" + curId;
 	}
