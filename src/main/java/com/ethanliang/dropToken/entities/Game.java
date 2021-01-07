@@ -16,7 +16,7 @@ public class Game {
 
     private final String gameId;
 
-    private Set<String> playerIds = new HashSet<>();
+    private Set<String> playerIds;
 
     private GameState gameState;
 
@@ -33,12 +33,14 @@ public class Game {
         super();
         this.gameId = "gameId" + curId;
 
+        this.moveRecord = new HashMap<>();
+
+        this.playerIds = new LinkedHashSet<>();
+
         playerIds.add(player1);
         playerIds.add(player2);
 
         this.gameState = GameState.IN_PROGRESS;
-
-        this.moveRecord = new HashMap<>();
 
         this.curPlayer = "";
 
