@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ethanliang.dropToken.repository.GameDataAccessService;
 import com.ethanliang.dropToken.entities.Game;
-import com.ethanliang.dropToken.entities.Player;
 import com.ethanliang.dropToken.exceptions.ApiException;
 import com.ethanliang.dropToken.entities.Move;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,7 @@ public class GameService {
 		String p1 = players.getString(0);
 		String p2 = players.getString(1);
 
-		if (p1.equals("") || p2.equals("")) {
+		if (p1.equals("") || p2.equals("") || p1.equals(p2)) {
 			throw new ApiException.MalformedException("Malformed request");
 		}
 
@@ -76,7 +75,7 @@ public class GameService {
 	public JSONObject getStateOfGameById(String gameId) {
 		Game curGame = gameDataAccessService.getGameById(gameId);
 		JSONObject result = new JSONObject(new LinkedHashMap<>());
-		result.put("players", curGame.getPlayersId());
+		result.put("players", curGame.getPlayerIds());
 		result.put("state", curGame.getGameState());
 		if (curGame.getGameState() != Game.GameState.IN_PROGRESS) {
 			result.put("winner", curGame.getWinner());
@@ -98,8 +97,11 @@ public class GameService {
 			throw new ApiException.DoneStateException("Game is already in DONE state");
 		} else {
 			//find player in this game and set the current player
-			Player curGamePlayer = curGame.getPlayerById(playerId);
-			curGame.setCurPlayer(curGamePlayer);
+			Set<String> playerIds = curGame.getPlayerIds();
+			if (!playerIds.contains(playerId)) {
+				throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
+			}
+			curGame.setCurPlayer(playerId);
 			//post move in the game
 			curGame.postMove(column);
 			//create new move class
@@ -126,21 +128,18 @@ public class GameService {
 			throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
 		}
 		if (curGame.getGameState().equals(Game.GameState.DONE)) {
-			System.out.println("work");
 			throw new ApiException.DoneStateException("Game is already in DONE state");
 		}
-		List<Player> curGamePlayers = curGame.getPlayers();
-		List<String> curGamePlayersId = curGame.getPlayersId();
-		if (!curGamePlayersId.contains(playerId)) {
+		Set<String> curGamePlayers = curGame.getPlayerIds();
+		if (!curGamePlayers.contains(playerId)) {
 			throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
 		}
 		//record this move in the game
 		Move curMove = new Move(playerId);
 		curGame.recordMove(curGame.getListOfMove().size() + 1, curMove);
 		//delete the player from the game
-		Player curGamePlayer = curGame.getPlayerById(playerId);
-		curGamePlayersId.remove(playerId);
-		curGamePlayers.remove(curGamePlayer);
+		curGamePlayers.remove(playerId);
+		curGame.setPlayerIds(curGamePlayers);
 		//set game state
 		curGame.setGameState(Game.GameState.DONE);
 	}

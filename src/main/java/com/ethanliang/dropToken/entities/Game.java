@@ -1,8 +1,5 @@
 package com.ethanliang.dropToken.entities;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.ethanliang.dropToken.exceptions.ApiException;
-
 import java.util.*;
 
 public class Game {
@@ -11,46 +8,29 @@ public class Game {
         DONE, IN_PROGRESS
     }
 
-    @JSONField(serialize = false)
     private final String gameId;
 
-    @JSONField(name = "players", ordinal = 1)
-    private final List<String> playersId;
+    private Set<String> playerIds = new HashSet<>();
 
-    @JSONField(name = "state", ordinal = 2)
     private GameState gameState;
 
-    @JSONField(name = "winner", ordinal = 3)
     private String winner;
 
-    @JSONField(serialize = false)
     private final Map<Integer, Move> moveRecord;
 
     private final Board board;
-
-    private Player curPlayer = null;
-
-    private final List<Player> players;
 
     //initial a game
     public Game(String player1, String player2, int curId) {
         super();
         this.gameId = "gameId" + curId;
 
-        Player player11 = new Player(player1);
-        Player player21 = new Player(player2);
-
-        this.playersId = new ArrayList<>();
-        playersId.add(player1);
-        playersId.add(player2);
-
-        this.players = new ArrayList<>();
-        players.add(player11);
-        players.add(player21);
+        playerIds.add(player1);
+        playerIds.add(player2);
 
         this.gameState = GameState.IN_PROGRESS;
 
-        this.board = new Board(player11);
+        this.board = new Board(player1);
 
         this.moveRecord = new HashMap<>();
     }
@@ -59,12 +39,12 @@ public class Game {
         return this.gameId;
     }
 
-    public List<String> getPlayersId() {
-        return this.playersId;
+    public Set<String> getPlayerIds() {
+        return this.playerIds;
     }
 
-    public List<Player> getPlayers() {
-        return this.players;
+    public void setPlayerIds(Set<String> playerIds) {
+        this.playerIds = playerIds;
     }
 
     public GameState getGameState() {
@@ -105,21 +85,7 @@ public class Game {
         board.markAt(column);
     }
 
-    public Player getPlayerById(String playerId) {
-        if (curPlayer != null) {
-            curPlayer = null;
-        }
-        Optional<Player> catchCurPlayer = players.stream()
-                .filter(player -> player.getPlayerId().equals(playerId))
-                .findFirst();
-        catchCurPlayer.ifPresent(player -> curPlayer = player);
-        if (curPlayer == null || !playersId.contains(curPlayer.getPlayerId())) {
-            throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
-        }
-        return curPlayer;
-    }
-
-    public void setCurPlayer(Player curGamePlayer) {
+    public void setCurPlayer(String curGamePlayer) {
         board.setCurPlayer(curGamePlayer);
     }
 }

@@ -8,12 +8,12 @@ public class Board {
 
 	public Marker[][] board;
 
-	private final Player player1;
-	private Player curPlayer;
+	private final String player1;
+	private String curPlayer = "";
 	private int round;
 
 	//initialize game board
-	public Board(Player player1) {
+	public Board(String player1) {
 		this.board = new Marker[4][4];
 		this.player1 = player1;
 		this.round = 1;
@@ -32,7 +32,7 @@ public class Board {
 		} else {
 			for (int i = 3; i >= 0; i--) {
 				if (board[i][col] == Marker.BLANK) {
-					if (curPlayer == player1) {
+					if (curPlayer.equals(player1)) {
 						board[i][col] = Marker.RED;
 					} else {
 						board[i][col] = Marker.BLUE;
@@ -100,7 +100,7 @@ public class Board {
 	}
 
 	public String getWinner() {
-		return curPlayer.getPlayerId();
+		return curPlayer;
 	}
 
 	public boolean isDraw() {
@@ -108,8 +108,8 @@ public class Board {
 		return round == 16 && !checkWin();
 	}
 
-	public void setCurPlayer(Player curPlayer) {
-		if (this.curPlayer == curPlayer) {
+	public void setCurPlayer(String curPlayer) {
+		if (this.curPlayer.equals(curPlayer)) {
 			throw new ApiException.WrongTurnException("Player tried to post when it's not their turn");
 		}
 		this.curPlayer = curPlayer;
