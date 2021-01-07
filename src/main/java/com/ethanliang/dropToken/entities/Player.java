@@ -1,4 +1,4 @@
-package com.tarterware.dropToken.entities;
+package com.ethanliang.dropToken.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

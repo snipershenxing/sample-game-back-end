@@ -1,10 +1,10 @@
-package com.tarterware.dropToken.control;
+package com.ethanliang.dropToken.control;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.tarterware.dropToken.entities.Move;
-import com.tarterware.dropToken.exceptions.ApiException;
-import com.tarterware.dropToken.service.GameService;
+import com.ethanliang.dropToken.service.GameService;
+import com.ethanliang.dropToken.entities.Move;
+import com.ethanliang.dropToken.exceptions.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +25,7 @@ public class GameController {
 
 	/*
 	Request all games' id
-	return list of game id
+	return list of game id of all in-progress games
 	*/
 	@GetMapping
 	public String getAllGames() {

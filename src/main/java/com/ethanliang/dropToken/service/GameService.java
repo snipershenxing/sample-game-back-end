@@ -1,12 +1,12 @@
-package com.tarterware.dropToken.service;
+package com.ethanliang.dropToken.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.tarterware.dropToken.entities.Game;
-import com.tarterware.dropToken.entities.Player;
-import com.tarterware.dropToken.exceptions.ApiException;
-import com.tarterware.dropToken.repository.GameDataAccessService;
-import com.tarterware.dropToken.entities.Move;
+import com.ethanliang.dropToken.repository.GameDataAccessService;
+import com.ethanliang.dropToken.entities.Game;
+import com.ethanliang.dropToken.entities.Player;
+import com.ethanliang.dropToken.exceptions.ApiException;
+import com.ethanliang.dropToken.entities.Move;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +27,13 @@ public class GameService {
 
 	public List<String> getAllGame() {
 		//get all games from repository
-		List<Game> gs = gameDataAccessService.getAllGames();
+		Collection<Game> gs = gameDataAccessService.getAllGames();
 		//get all game id from the games and put into a list
 		List<String> games = new ArrayList<>();
 		for (Game g : gs) {
-			games.add(g.getGameId());
+			if (g.getGameState() == Game.GameState.IN_PROGRESS) {
+				games.add(g.getGameId());
+			}
 		}
 		return games;
 	}
@@ -67,7 +69,7 @@ public class GameService {
 
 		//create a new game
 		Game curGame = new Game(p1, p2, curId);
-		GameDataAccessService.createGame(curGame);
+		GameDataAccessService.addGame(curGame);
 		return "gameId" + curId;
 	}
 
@@ -102,13 +104,10 @@ public class GameService {
 			curGame.postMove(column);
 			//create new move class
 			Move curMove = new Move(playerId, column);
-			int curGameNumOfMove = curGame.getNumOfMove();
-			curGameNumOfMove += 1;
-			curGame.recordMove(curGameNumOfMove, curMove);
-			curGame.setNumOfMove(curGameNumOfMove);
+			curGame.recordMove(curGame.getListOfMove().size() + 1, curMove);
 			//after posting move, check if there's any winner
 			curGame.updateStatus();
-			return gameId + "/moves/" + "moveNum: " + curGameNumOfMove;
+			return gameId + "/moves/" + "moveNum: " + curGame.getListOfMove().size();
 		}
 	}
 
@@ -136,9 +135,8 @@ public class GameService {
 			throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
 		}
 		//record this move in the game
-		curGame.setNumOfMove(curGame.getNumOfMove() + 1);
 		Move curMove = new Move(playerId);
-		curGame.recordMove(curGame.getNumOfMove(), curMove);
+		curGame.recordMove(curGame.getListOfMove().size() + 1, curMove);
 		//delete the player from the game
 		Player curGamePlayer = curGame.getPlayerById(playerId);
 		curGamePlayersId.remove(playerId);

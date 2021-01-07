@@ -1,7 +1,7 @@
-package com.tarterware.dropToken.entities;
+package com.ethanliang.dropToken.entities;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.tarterware.dropToken.exceptions.ApiException;
+import com.ethanliang.dropToken.exceptions.ApiException;
 
 import java.util.*;
 
@@ -28,8 +28,6 @@ public class Game {
 
     private final Board board;
 
-    private int numOfMove;
-
     private Player curPlayer = null;
 
     private final List<Player> players;
@@ -43,8 +41,8 @@ public class Game {
         Player player21 = new Player(player2);
 
         this.playersId = new ArrayList<>();
-        playersId.add(player11.getPlayerId());
-        playersId.add(player21.getPlayerId());
+        playersId.add(player1);
+        playersId.add(player2);
 
         this.players = new ArrayList<>();
         players.add(player11);
@@ -55,7 +53,6 @@ public class Game {
         this.board = new Board(player11);
 
         this.moveRecord = new HashMap<>();
-        this.numOfMove = 0;
     }
 
     public String getGameId() {
@@ -102,14 +99,6 @@ public class Game {
 
     public void recordMove(int curGameNumOfMove, Move curMove) {
         this.moveRecord.put(curGameNumOfMove, curMove);
-    }
-
-    public int getNumOfMove() {
-        return this.numOfMove;
-    }
-
-    public void setNumOfMove(int curGameNumOfMove) {
-        this.numOfMove = curGameNumOfMove;
     }
 
     public void postMove(int column) {

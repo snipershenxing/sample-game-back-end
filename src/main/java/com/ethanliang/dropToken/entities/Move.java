@@ -1,4 +1,4 @@
-package com.tarterware.dropToken.entities;
+package com.ethanliang.dropToken.entities;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -41,5 +41,12 @@ public class Move {
 
     public MoveType getMoveType(){
         return this.moveType;
+    }
+
+    @Override
+    public String toString() {
+        return "["+"Type: " + moveType
+                + " Player: " + playerId
+                + " column: " + column;
     }
 }

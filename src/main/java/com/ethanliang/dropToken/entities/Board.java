@@ -1,9 +1,8 @@
-package com.tarterware.dropToken.entities;
+package com.ethanliang.dropToken.entities;
 
-import com.tarterware.dropToken.exceptions.ApiException;
+import com.ethanliang.dropToken.exceptions.ApiException;
 
 public class Board {
-
 
 	enum Marker { RED, BLUE, BLANK }
 
