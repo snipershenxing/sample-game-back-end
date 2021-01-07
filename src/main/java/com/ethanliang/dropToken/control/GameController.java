@@ -63,6 +63,7 @@ public class GameController {
 
 	/*
 	get all moves made in game
+	searching by game ID
 	 */
 	@GetMapping(path = "{gameId}/moves")
 	public String getListOfMove (@PathVariable("gameId") String gameId) {
@@ -78,6 +79,7 @@ public class GameController {
 
 	/*
 	post a move by player in game
+	Searching by game ID and player ID
 	 */
 	@PostMapping(path = "{gameId}/{playerId}")
 	public String postMove(@RequestBody JSONObject input,
@@ -100,6 +102,7 @@ public class GameController {
 
 	/*
 	get the specific move in a game
+	Searching by game ID and number of move
 	 */
 	@GetMapping(path = "{gameId}/moves/{move_number}")
 	public String getMove(@PathVariable("gameId") String gameId,

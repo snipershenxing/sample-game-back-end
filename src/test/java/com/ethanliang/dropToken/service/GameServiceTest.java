@@ -1,6 +1,7 @@
 package com.ethanliang.dropToken.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.ethanliang.dropToken.entities.Game;
 import com.ethanliang.dropToken.entities.Move;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class GameServiceTest extends TestCase {
     private GameService gameservice;
 
     @Test
-    public void getAllGames() {
+    public void getAllGamesTest() {
         List<String> rstOfAllGame = gameservice.getAllGame();
         System.out.println("-----------------------------------------");
         System.out.println(rstOfAllGame);
@@ -75,11 +76,22 @@ public class GameServiceTest extends TestCase {
     }
 
     @Test
-    public void getGameStateById() {
+    public void getGameStateByIdTest() {
         String testGameId = "gameId1";
         JSONObject rstOfGettingGameState = gameservice.getStateOfGameById(testGameId);
         System.out.println("-----------------------------------------");
         System.out.println(rstOfGettingGameState);
+        System.out.println("-----------------------------------------");
+    }
+
+    @Test
+    public void isWinTest() {
+        Game.Marker[][] boardTest = new Game.Marker[4][4];
+        for (int i = 0; i < 4; i++) {
+            boardTest[i][i] = Game.Marker.RED;
+        }
+        System.out.println("-----------------------------------------");
+//        System.out.println(gameservice.isWin(boardTest));
         System.out.println("-----------------------------------------");
     }
 }

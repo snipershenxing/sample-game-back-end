@@ -8,17 +8,25 @@ public class Game {
         DONE, IN_PROGRESS
     }
 
+    public enum Marker{
+        RED, BLUE, BLANK
+    }
+
+    private Marker[][] board;
+
     private final String gameId;
 
     private Set<String> playerIds = new HashSet<>();
 
     private GameState gameState;
 
+    private String curPlayer;
+
     private String winner;
 
-    private final Map<Integer, Move> moveRecord;
+    private final String firstPlayer;
 
-    private final Board board;
+    private final Map<Integer, Move> moveRecord;
 
     //initial a game
     public Game(String player1, String player2, int curId) {
@@ -30,9 +38,18 @@ public class Game {
 
         this.gameState = GameState.IN_PROGRESS;
 
-        this.board = new Board(player1);
-
         this.moveRecord = new HashMap<>();
+
+        this.curPlayer = "";
+
+        this.firstPlayer = player1;
+
+        this.board = new Marker[4][4];
+        for(int r = 0;  r < 4;  ++r ) {
+            for(int c = 0;  c < 4;  ++c) {
+                board[r][c] = Marker.BLANK;
+            }
+        }
     }
 
     public String getGameId() {
@@ -59,18 +76,20 @@ public class Game {
         return this.winner;
     }
 
-    public void updateStatus() {
-        if (board.checkWin()) {
-            this.gameState = GameState.DONE;
-            this.winner = board.getWinner();
-        } else {
-            if (board.isDraw()) {
-                this.gameState = GameState.DONE;
-                this.winner = null;
-            } else {
-                this.gameState = GameState.IN_PROGRESS;
-            }
-        }
+    public void setWinner(String player) {
+        this.winner = player;
+    }
+
+    public String getFirstPlayer() {
+        return this.firstPlayer;
+    }
+
+    public Marker[][] getBoard() {
+        return board;
+    }
+
+    public void setBoard(Marker[][] board) {
+        this.board = board;
     }
 
     public Map<Integer, Move> getListOfMove() {
@@ -81,11 +100,11 @@ public class Game {
         this.moveRecord.put(curGameNumOfMove, curMove);
     }
 
-    public void postMove(int column) {
-        board.markAt(column);
+    public void setCurPlayer(String curGamePlayer) {
+        this.curPlayer = curGamePlayer;
     }
 
-    public void setCurPlayer(String curGamePlayer) {
-        board.setCurPlayer(curGamePlayer);
+    public String getCurPlayer() {
+        return this.curPlayer;
     }
 }

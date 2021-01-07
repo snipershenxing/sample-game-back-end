@@ -47,6 +47,6 @@ public class Move {
     public String toString() {
         return "["+"Type: " + moveType
                 + " Player: " + playerId
-                + " column: " + column;
+                + " Column: " + column;
     }
 }

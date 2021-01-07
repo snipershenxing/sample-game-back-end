@@ -13,9 +13,7 @@ public class GameDataAccessService {
     private final static HashMap<String, Game> gameDB = new HashMap<>();
 
     @Autowired
-    public GameDataAccessService() {
-
-    }
+    public GameDataAccessService() {}
 
     public static void addGame(Game game) {
         gameDB.put(game.getGameId(), game);

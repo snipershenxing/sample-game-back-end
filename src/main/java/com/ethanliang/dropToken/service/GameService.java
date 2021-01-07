@@ -101,15 +101,115 @@ public class GameService {
 			if (!playerIds.contains(playerId)) {
 				throw new ApiException.PlayerNotFoundException("Game not found or player is not a part of it");
 			}
-			curGame.setCurPlayer(playerId);
+			String lastPlayer = curGame.getCurPlayer();
+			if (lastPlayer.equals(playerId)) {
+				throw new ApiException.WrongTurnException("Player tried to post when it's not their turn");
+			}
+			String firstPlayer = curGame.getFirstPlayer();
 			//post move in the game
-			curGame.postMove(column);
+			Game.Marker[][] curBoard = curGame.getBoard();
+			markAt(curBoard, column, playerId, firstPlayer);
+			curGame.setCurPlayer(playerId);
 			//create new move class
 			Move curMove = new Move(playerId, column);
 			curGame.recordMove(curGame.getListOfMove().size() + 1, curMove);
 			//after posting move, check if there's any winner
-			curGame.updateStatus();
+			if (isWin(curBoard)) {
+				curGame.setGameState(Game.GameState.DONE);
+				curGame.setWinner(playerId);
+			} else {
+				if (isDraw(curBoard)) {
+					curGame.setGameState(Game.GameState.DONE);
+					curGame.setWinner(null);
+				} else {
+					curGame.setGameState(Game.GameState.IN_PROGRESS);
+				}
+			}
+			curGame.setBoard(curBoard);
 			return gameId + "/moves/" + "moveNum: " + curGame.getListOfMove().size();
+		}
+	}
+
+	private boolean isDraw(Game.Marker[][] curBoard) {
+		for(int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (curBoard[i][j] == Game.Marker.BLANK) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private boolean isWin(Game.Marker[][] curBoard) {
+		Game.Marker flag;
+		//x, y
+		for (int i = 0; i < 4; i++) {
+			flag = curBoard[i][i];
+			if (flag == Game.Marker.BLANK) {
+				continue;
+			}
+			boolean xFull = true;
+			boolean yFull = true;
+			//x dir
+			for (int j = 0; j < 4; j++) {
+				if (curBoard[i][j] != flag || curBoard[i][j] == Game.Marker.BLANK) {
+					xFull = false;
+				}
+				if (curBoard[j][i] != flag || curBoard[j][i] == Game.Marker.BLANK) {
+					yFull = false;
+				}
+			}
+			if (xFull || yFull) {
+				return true;
+			}
+		}
+		//diagnol 1
+		boolean diagonal1 = true;
+		boolean diagonal2 = true;
+		flag = curBoard[0][0];
+		if (curBoard[0][0] == Game.Marker.BLANK) {
+			diagonal1 = false;
+		} else {
+			for (int i = 3; i >= 0; i--) {
+				if (curBoard[i][i] != flag) {
+					diagonal1 = false;
+					break;
+				}
+			}
+		}
+
+		//diagnol 2
+		flag = curBoard[3][0];
+		if (curBoard[3][0] == Game.Marker.BLANK) {
+			diagonal2 = false;
+		} else {
+			for (int i = 3; i >= 0; i--) {
+				if (curBoard[i][3 - i] != flag) {
+					diagonal2 = false;
+					break;
+				}
+			}
+		}
+
+		return diagonal1 || diagonal2;
+	}
+
+	private void markAt(Game.Marker[][] curBoard, int column, String curPlayer, String firstPlayer) {
+		column -= 1;
+		if (curBoard[0][column] != Game.Marker.BLANK) {
+			throw new ApiException.IllegalMoveException("Malformed input. Illegal move");
+		} else {
+			for (int i = 3; i >= 0; i--) {
+				if (curBoard[i][column] == Game.Marker.BLANK) {
+					if (curPlayer.equals(firstPlayer)) {
+						curBoard[i][column] = Game.Marker.RED;
+					} else {
+						curBoard[i][column] = Game.Marker.BLUE;
+					}
+					break;
+				}
+			}
 		}
 	}
 
