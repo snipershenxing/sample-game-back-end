@@ -10,7 +10,7 @@ import java.util.*;
 @Repository("games")
 public class GameDataAccessService {
 
-    private final static HashMap<String, Game> gameDB = new HashMap<>();
+    private final static HashMap<String, Game> gameDB = new LinkedHashMap<>();
 
     @Autowired
     public GameDataAccessService() {}

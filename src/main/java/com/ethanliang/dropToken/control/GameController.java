@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("drop_token/")
@@ -41,10 +43,10 @@ public class GameController {
 	validate the inputs
 	*/
 	@PostMapping
-	public String createNewGame(@RequestBody @Valid JSONObject game) throws ApiException.MalformedException {
-		String success = gameService.createNewGame(game);
+	public String createNewGame(@RequestBody @Valid JSONObject game) throws ApiException.MalformedException, ExecutionException, InterruptedException {
+		CompletableFuture<String> success = gameService.createNewGame(game);
 		JSONObject result = new JSONObject();
-		result.put("gameId", success);
+		result.put("gameId", success.get());
 		return result.toJSONString();
 	}
 

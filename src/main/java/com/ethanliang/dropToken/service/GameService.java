@@ -6,11 +6,15 @@ import com.ethanliang.dropToken.repository.GameDataAccessService;
 import com.ethanliang.dropToken.entities.Game;
 import com.ethanliang.dropToken.exceptions.ApiException;
 import com.ethanliang.dropToken.entities.Move;
+import groovy.util.logging.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 public class GameService {
 
@@ -21,7 +25,7 @@ public class GameService {
 	public GameService()
 	{
 		this.gameDataAccessService = new GameDataAccessService();
-		this.gameId = new ArrayList<>();
+		this.gameId = Collections.synchronizedList(new ArrayList<>());
 	}
 
 	public List<String> getAllGame() {
@@ -36,8 +40,8 @@ public class GameService {
 		}
 		return games;
 	}
-
-	public String createNewGame(JSONObject game) {
+	@Async("dropTokenExecutor")
+	public CompletableFuture<String> createNewGame(JSONObject game) throws InterruptedException {
 		//get players' name
 		if (!game.containsKey("players") || !game.containsKey("columns") || !game.containsKey("rows")) {
 			throw new ApiException.MalformedException("Malformed request");
@@ -69,7 +73,8 @@ public class GameService {
 		//create a new game
 		Game curGame = new Game(p1, p2, curId);
 		GameDataAccessService.addGame(curGame);
-		return "gameId" + curId;
+		Thread.sleep(0);
+		return CompletableFuture.completedFuture("gameId" + curId);
 	}
 
 	public JSONObject getStateOfGameById(String gameId) {

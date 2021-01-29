@@ -3,7 +3,7 @@ package com.ethanliang.dropToken.service;
 import com.alibaba.fastjson.JSONObject;
 import com.ethanliang.dropToken.entities.Game;
 import com.ethanliang.dropToken.entities.Move;
-import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +13,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class GameServiceTest extends TestCase {
+public class GameServiceTest1 extends DropTokenTests {
 
     @Autowired
     private GameService gameservice;
@@ -30,7 +32,7 @@ public class GameServiceTest extends TestCase {
     }
 
     @Test
-    public void createNewGameTest() {
+    public void createNewGameTest() throws ExecutionException, InterruptedException {
         JSONObject testRequest = new JSONObject();
         List<String> testPlayers = new ArrayList<>();
         testPlayers.add("Ethan");
@@ -38,10 +40,16 @@ public class GameServiceTest extends TestCase {
         testRequest.put("players", testPlayers);
         testRequest.put("columns", 4);
         testRequest.put("rows", 4);
-        String rstOfCreatingGame = gameservice.createNewGame(testRequest);
-        System.out.println("-----------------------------------------");
-        System.out.println(rstOfCreatingGame);
-        System.out.println("-----------------------------------------");
+        for (int i = 0; i < 10; i++){
+            CompletableFuture<String> rstOfCreatingGame = gameservice.createNewGame(testRequest);
+            Assert.assertEquals("gameId"+(i+1), rstOfCreatingGame.get());
+            System.out.println("-----------------------------------------");
+            System.out.println(rstOfCreatingGame.get());
+            System.out.println("-----------------------------------------");
+
+        }
+
+
 
         List<String> rstOfAllGame = gameservice.getAllGame();
         System.out.println("-----------------------------------------");
