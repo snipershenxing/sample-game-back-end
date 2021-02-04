@@ -1,10 +1,4 @@
 # drop-token-game-back-end
-98point6 Drop-Token: At-home interview
-question for BE engineers
-We would like you to implement a backend (REST web-service) that allows playing the game of
-9dt, or 98point6 drop token. This should allow the players to create games, post moves, query
-moves and get state of games.
-Rules of the Game
 Drop Token takes place on a 4x4 grid. A token is dropped along a column and said token goes
 to the lowest unoccupied row of the board. A player wins when they have 4 tokens next to each
 other either along a row, in a column, or on a diagonal. If the board is filled, and nobody has
@@ -98,30 +92,4 @@ Status codes
 ● 202 - OK. On success
 ● 404 - Game not found or player is not a part of it.
 ● 410 - Game is already in DONE state.
-Assessment and Interview
-After we receive your submission we will conduct a code review and execute our suite of
-integration tests that assert the correctness of the API. Through the course of our review and
-testing we will assess your implementation on several different criteria:
-● Correctness : Does your API adhere to the specification
-● Robustness : Does your implementation handle malformed, edge case, or fuzzed input
-without failing and while returning meaningful messages on the cause of the failure?
-● Readability : Can an engineer unfamiliar with your implementation read and understand
-what you wrote with sufficient depth to make modifications? This criteria speaks to style,
-naming conventions, organization, and comments.
-● Scalability : Will your solution perform under stress of hundreds-to-thousands of games.
-You will review your solution with 1-2 members of the engineering team. You should be
-prepared to talk about your implementation approach, design trade-offs and approach to testing
-and validation.
-Submitting your solution
-Please submit your source code and instructions for building/running it along with your test plan
-to the link provided in email by 12pm (noon) the day before your interview .
-If you have several files to submit, please create a zip file or compressed archive (e.g., .tar.gz)
-and upload it to the submission link.
-An optional starting point Java shim for your code is provided in the hope it will reduce
-boiler-plate code and some ramp-up in unknown technologies. Access it here:
-https://s3-us-west-2.amazonaws.com/98point6-homework-assets/98point6BackendHomeworkJ
-avaStarter.zip Feel free to use it or ignore it.
-If you choose not to use the provided shim, you must provide thorough instructions on how to
-set up and run your service. We are experienced developers, but we may not be familiar with
-the tools or languages you used, so please draft the instructions accordingly.
-For dotnet solutions, we will compile and run your code using mono .
+
